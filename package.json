@@ -1,0 +1,17 @@
+{
+  "dependencies": {
+    "discord.js": "^14.6.0",
+    "dotenv": "^16.0.3",
+    "pg": "^8.8.0"
+  },
+  "name": "discord-bot",
+  "version": "1.0.0",
+  "main": "deploy-commands.js && node index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "run": "node deploy-commands.js && node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
