@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { deleteData } = require('../db/dbCommands');
+const { hasMedia } = require('../util/hasMedia');
 const { hasManager } = require('../util/hasRole');
 const { tableExists } = require('../util/tableCheck');
 
@@ -16,12 +17,18 @@ module.exports = {
 		if (hasManager(interaction.member)) {
 			if (await tableExists) {
 				let id = "id" + interaction.guild.id
-				if (await deleteData(id, interaction.options.getString('name'))) {
-					res = `The media ${interaction.options.getString('name')} has been removed from the library.`;
+				if (await hasMedia(id, interaction.options.getString('name'))){
+					if (await deleteData(id, interaction.options.getString('name'))) {
+						res = `The media ${interaction.options.getString('name')} has been removed from the library.`;
+					}
+					else {
+						res = "Something went wrong with the database."
+					}
 				}
 				else {
-					res = "Something went wrong with the database."
+					res = `The media ${interaction.options.getString('name')} does not exist.`
 				}
+				
 			}
 			else {
 				res = "A media library does not exist.";

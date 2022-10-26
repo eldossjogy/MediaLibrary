@@ -23,6 +23,6 @@ module.exports = {
             )
             .setFooter({ text: 'MediaLibrary', iconURL: 'https://i.imgur.com/JTtOUTG.png' });
 
-    await interaction.reply({ embeds: [helpEmbed] });
+    await interaction.reply({ embeds: [helpEmbed] ,  ephemeral: true });
 }
 };
