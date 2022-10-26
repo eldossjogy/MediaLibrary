@@ -1,7 +1,7 @@
 require('dotenv').config();
 const fs = require('node:fs');
 const path = require('node:path');
-const { Client, Events, GatewayIntentBits, Collection } = require('discord.js');
+const { Client, Events, GatewayIntentBits, Collection, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { queryData } = require("./db/dbCommands");
 
 // Create a new client instance
@@ -53,8 +53,30 @@ client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isSelectMenu()) return;
 	if (interaction.customId === 'select') {
 		res = await queryData("id" + interaction.guildId, interaction.values[0])
-		await interaction.update({ content: `**${interaction.values[0]}:** \n ${res}` });
+		const row = new ActionRowBuilder()
+			.addComponents(
+				new ButtonBuilder()
+					.setCustomId('primary')
+					.setLabel('Send Media')
+					.setStyle(ButtonStyle.Primary),
+			);
+		if (interaction.message.components.length == 1) {
+			await interaction.update({ content: `**${interaction.values[0]}:** \n ${res}`, components: [interaction.message.components[0], row] });
+		}
+		else {
+			await interaction.update({ content: `**${interaction.values[0]}:** \n ${res}` })
+		}
 	}
 });
-// Log in to Discord with your client's token
+
+// Handle Button Press
+client.on(Events.InteractionCreate, async interaction => {
+	if (!interaction.isButton()) return;
+	media = interaction.message.content.split('\n')[1].trim()
+	if (media) {
+		await interaction.update({ content: "Media sent", components: [], ephemeral: true })
+		setTimeout(async () => { await interaction.followUp({ content: `${media}`, ephemeral: false }) }, 0)
+	}
+});
+
 client.login(process.env.token);

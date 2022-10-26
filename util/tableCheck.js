@@ -8,7 +8,7 @@ const tableExists = async function (serverID) {
   return false
 }
 
-const tableEmpty = async function (serverID) {
+const tableNotEmpty = async function (serverID) {
   create = await queryAll(serverID)
   if (create.length > 0) {
     return true;
@@ -16,4 +16,4 @@ const tableEmpty = async function (serverID) {
   return false
 }
 
-module.exports = { tableExists,tableEmpty };
+module.exports = { tableExists,tableNotEmpty };

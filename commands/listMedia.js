@@ -1,6 +1,6 @@
 const { SlashCommandBuilder, ActionRowBuilder, SelectMenuBuilder } = require('discord.js');
 const { queryAll } = require("../db/dbCommands");
-const { tableExists, tableEmpty } = require('../util/tableCheck');
+const { tableExists, tableNotEmpty } = require('../util/tableCheck');
 
 module.exports = {
     data:
@@ -11,13 +11,13 @@ module.exports = {
     async execute(interaction) {
         let id = "id" + interaction.guild.id
         if (await tableExists(id)) {
-            if (await tableEmpty(id)) {
+            if (await tableNotEmpty(id)) {
                 res = await queryAll(id)
                 optionsList = []
+                res.sort((a, b) => (a.name.toUpperCase()[0] > b.name.toUpperCase()[0]) ? 1 : -1)
                 res.forEach(element => {
                     optionsList.push({ label: element.name, value: element.name })
                 });
-
                 const row = new ActionRowBuilder()
                     .addComponents(
                         new SelectMenuBuilder()
