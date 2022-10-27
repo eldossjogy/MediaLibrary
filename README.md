@@ -6,7 +6,7 @@
 <h3 align="center">MediaLibrary</h3>
  
 ## About 
-A discord bot that allows users to save media links in a media library under keys. Making sending videos or images that are commonly uses much faster.
+A discord bot that allows users to save media links in a media library under keys. Making sending videos or images that are commonly used much faster.
 
 🔗[Invite Discord Bot](https://discord.com/api/oauth2/authorize?client_id=910350971299848192&permissions=431644735552&scope=bot%20applications.commands)
 
