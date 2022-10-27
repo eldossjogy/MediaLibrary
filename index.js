@@ -72,10 +72,12 @@ client.on(Events.InteractionCreate, async interaction => {
 // Handle Button Press
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isButton()) return;
+	selected = interaction.message.content.split('\n')[0].trim().slice(0, -3) + "**";
 	media = interaction.message.content.split('\n')[1].trim()
 	if (media) {
+		username = "<@" + interaction.user.id + ">"
 		await interaction.update({ content: "Media sent", components: [], ephemeral: true })
-		setTimeout(async () => { await interaction.followUp({ content: `${media}`, ephemeral: false }) }, 0)
+		setTimeout(async () => { await interaction.followUp({ content: `${selected} sent by ${username} \n${media}`, ephemeral: false, allowedMentions: {repliedUser: false} }) }, 0)
 	}
 });
 
