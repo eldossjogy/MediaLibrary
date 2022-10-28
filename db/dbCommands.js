@@ -107,4 +107,20 @@ async function updateName(serverID, name, newName) {
 
 }
 
-module.exports = { insertData, deleteData, queryAll, queryKeys, queryData, createTable, deleteTable, clearTable, updateName };
+async function updateMedia(serverID, name, newMedia) {
+    try {
+        await pool.query(
+            `UPDATE ${serverID}
+            SET link = $1
+            WHERE name = $2;`,
+            [newMedia,name]
+        );
+        return true
+    } catch (error) {
+
+        return false
+    }
+
+}
+
+module.exports = { insertData, deleteData, queryAll, queryKeys, queryData, createTable, deleteTable, clearTable, updateName ,updateMedia };
