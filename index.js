@@ -2,7 +2,7 @@ require('dotenv').config();
 const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Events, GatewayIntentBits, Collection, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { queryData } = require("./db/dbCommands");
+const { queryData,queryKeys } = require("./db/dbCommands");
 
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -78,6 +78,24 @@ client.on(Events.InteractionCreate, async interaction => {
 		username = "<@" + interaction.user.id + ">"
 		await interaction.update({ content: "Media sent", components: [], ephemeral: true })
 		setTimeout(async () => { await interaction.followUp({ content: `${selected} sent by ${username} \n${media}`, ephemeral: false, allowedMentions: {repliedUser: false} }) }, 0)
+	}
+});
+
+// Handle AutoComplete on getmedia
+client.on(Events.InteractionCreate, async interaction => {
+	if (!interaction.isAutocomplete()) return;
+
+	if (interaction.commandName === 'getmedia') {
+		const focusedOption = interaction.options.getFocused(true);
+		let choices = [];
+		if (focusedOption.name === 'name') {
+			res = await queryKeys("id" + interaction.guildId)
+			res.forEach(ele => {choices.push(ele['name'])});
+		}
+		const filtered = choices.sort((a, b) => (a.toUpperCase()[0] > b.toUpperCase()[0]) ? 1 : -1)
+		await interaction.respond(
+			filtered.map(choice => ({ name: choice, value: choice })),
+		);
 	}
 });
 

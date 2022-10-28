@@ -11,6 +11,7 @@ module.exports = {
 				option.setName('name')
 					.setDescription('Name of the media')
 					.setRequired(true)
+					.setAutocomplete(true)
 			),
 	async execute(interaction) {
 		let id = "id" + interaction.guild.id

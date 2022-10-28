@@ -52,7 +52,6 @@ async function queryKeys(serverID) {
         const res = await pool.query(
             `SELECT name FROM ${serverID}`
         );
-        console.log(res.rows);
         return res.rows
     } catch (error) {
         return false
@@ -102,7 +101,7 @@ async function updateName(serverID, name, newName) {
         );
         return true
     } catch (error) {
-        console.log(error)
+
         return false
     }
 
