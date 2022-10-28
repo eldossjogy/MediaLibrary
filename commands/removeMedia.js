@@ -12,7 +12,8 @@ module.exports = {
 			option.setName('name')
 				.setDescription('Name of the media')
 				.setRequired(true)
-		),
+				.setAutocomplete(true)
+		),	
 	async execute(interaction) {
 		if (hasManager(interaction.member)) {
 			if (await tableExists) {

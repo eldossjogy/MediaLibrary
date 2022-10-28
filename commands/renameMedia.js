@@ -11,7 +11,8 @@ module.exports = {
             .addStringOption(option =>
                 option.setName('name')
                     .setDescription('Set a name for the media your saving.')
-                    .setRequired(true))
+                    .setRequired(true)
+                    .setAutocomplete(true))
             .addStringOption(option =>
                 option.setName('newname')
                     .setDescription('Link of the media you save.')

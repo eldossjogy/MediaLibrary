@@ -85,7 +85,7 @@ client.on(Events.InteractionCreate, async interaction => {
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isAutocomplete()) return;
 
-	if (interaction.commandName === 'getmedia') {
+	if (interaction.commandName === 'getmedia' || interaction.commandName === 'removemedia' || interaction.commandName === 'renamemedia') {
 		const focusedOption = interaction.options.getFocused(true);
 		let choices = [];
 		if (focusedOption.name === 'name') {
