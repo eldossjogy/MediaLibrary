@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require('discord.js');
 const { deleteData } = require('../db/dbCommands');
 const { hasMedia } = require('../util/hasMedia');
 const { hasManager } = require('../util/hasRole');
+const { isAuthor } = require('../util/isAuthor');
 const { tableExists } = require('../util/tableCheck');
 
 module.exports = {
@@ -15,7 +16,9 @@ module.exports = {
 				.setAutocomplete(true)
 		),	
 	async execute(interaction) {
-		if (hasManager(interaction.member)) {
+		let id = "id" + interaction.guild.id
+		let userId = interaction.member.id
+        if (hasManager(interaction.member) || isAuthor(id, interaction.options.getString('name'),userId)) {
 			if (await tableExists) {
 				let id = "id" + interaction.guild.id
 				if (await hasMedia(id, interaction.options.getString('name'))){

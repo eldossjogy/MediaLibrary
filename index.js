@@ -81,11 +81,11 @@ client.on(Events.InteractionCreate, async interaction => {
 	}
 });
 
-// Handle AutoComplete on getmedia
+// Handle AutoComplete on commands
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isAutocomplete()) return;
-
-	if (interaction.commandName === 'getmedia' || interaction.commandName === 'removemedia' || interaction.commandName === 'renamemedia' || interaction.commandName == 'editmedia') {
+	lstCommands = ['getmedia','removemedia','renamemedia','editmedia']
+	if (lstCommands.includes(interaction.commandName)) {
 		const focusedOption = interaction.options.getFocused(true);
 		let choices = [];
 		if (focusedOption.name === 'name') {

@@ -1,6 +1,7 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { queryData, updateMedia } = require("../db/dbCommands");
 const { hasManager } = require('../util/hasRole');
+const { isAuthor } = require('../util/isAuthor');
 const { tableExists } = require('../util/tableCheck');
 
 module.exports = {
@@ -19,7 +20,8 @@ module.exports = {
                     .setRequired(true)),
     async execute(interaction) {
         let id = "id" + interaction.guild.id
-        if (hasManager(interaction.member)) {
+        let userId = interaction.member.id
+        if (hasManager(interaction.member) || isAuthor(id, interaction.options.getString('name'),userId)) {
             if (await tableExists(id)) {
                 if (await queryData(id, interaction.options.getString('name'))) {
                     if (await updateMedia(id, interaction.options.getString('name'), interaction.options.getString('newmedia'))) {

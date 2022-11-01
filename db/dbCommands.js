@@ -1,10 +1,10 @@
 const { pool } = require("./db");
 
-async function insertData(serverID, name, link) {
+async function insertData(serverID, name, link, userID) {
     try {
         await pool.query(
-            `INSERT INTO ${serverID} (name, link) VALUES ($1, $2)`,
-            [name, link]
+            `INSERT INTO ${serverID} (name, link,author_id) VALUES ($1, $2, $3)`,
+            [name, link,userID]
         );
         return true
     } catch (error) {
@@ -36,6 +36,18 @@ async function queryData(serverID, name) {
     }
 }
 
+async function queryAuthor(serverID, name) {
+    try {
+        const res = await pool.query(
+            `SELECT author_id FROM ${serverID} WHERE name = $1`,
+            [name]
+        );
+        return res.rows[0].author_id
+    } catch (error) {
+        return false
+    }
+}
+
 async function queryAll(serverID) {
     try {
         const res = await pool.query(
@@ -61,7 +73,7 @@ async function queryKeys(serverID) {
 async function createTable(serverID) {
     try {
         await pool.query(
-            `CREATE TABLE IF NOT EXISTS ${serverID} ( id serial PRIMARY KEY, name TEXT UNIQUE NOT NULL, link TEXT UNIQUE NOT NULL)`
+            `CREATE TABLE IF NOT EXISTS ${serverID} ( id serial PRIMARY KEY, name TEXT UNIQUE NOT NULL, link TEXT UNIQUE NOT NULL, author_id TEXT UNIQUE NOT NULL)`
         );
         return true
     } catch (error) {
@@ -104,7 +116,6 @@ async function updateName(serverID, name, newName) {
 
         return false
     }
-
 }
 
 async function updateMedia(serverID, name, newMedia) {
@@ -120,7 +131,6 @@ async function updateMedia(serverID, name, newMedia) {
 
         return false
     }
-
 }
 
-module.exports = { insertData, deleteData, queryAll, queryKeys, queryData, createTable, deleteTable, clearTable, updateName ,updateMedia };
+module.exports = { insertData, deleteData, queryAll, queryKeys, queryData, createTable, deleteTable, clearTable, updateName ,updateMedia, queryAuthor};

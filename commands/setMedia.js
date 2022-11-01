@@ -17,8 +17,9 @@ module.exports = {
                     .setRequired(true)),
     async execute(interaction) {
         let id = "id" + interaction.guild.id
+        let userId = interaction.member.id
         if (await tableExists(id)) {
-            if (await insertData(id, interaction.options.getString('name'), interaction.options.getString('link'))) {
+            if (await insertData(id, interaction.options.getString('name'), interaction.options.getString('link'), userId)) {
                 res = `Media saved under ${interaction.options.getString('name')}`
             }
             else {
