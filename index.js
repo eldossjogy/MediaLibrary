@@ -90,7 +90,9 @@ client.on(Events.InteractionCreate, async interaction => {
 		let choices = [];
 		if (focusedOption.name === 'name') {
 			res = await queryKeys("id" + interaction.guildId)
-			res.forEach(ele => {choices.push(ele['name'])});
+			if (res){
+				res.forEach(ele => {choices.push(ele['name'])});
+			}
 		}
 		const filtered = choices.sort((a, b) => (a.toUpperCase()[0] > b.toUpperCase()[0]) ? 1 : -1)
 		await interaction.respond(

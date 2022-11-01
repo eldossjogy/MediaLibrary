@@ -73,7 +73,7 @@ async function queryKeys(serverID) {
 async function createTable(serverID) {
     try {
         await pool.query(
-            `CREATE TABLE IF NOT EXISTS ${serverID} ( id serial PRIMARY KEY, name TEXT UNIQUE NOT NULL, link TEXT UNIQUE NOT NULL, author_id TEXT UNIQUE NOT NULL)`
+            `CREATE TABLE IF NOT EXISTS ${serverID} ( id serial PRIMARY KEY, name TEXT UNIQUE NOT NULL, link TEXT UNIQUE NOT NULL, author_id TEXT NOT NULL)`
         );
         return true
     } catch (error) {

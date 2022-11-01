@@ -10,30 +10,27 @@ module.exports = {
 
     async execute(interaction) {
         let id = "id" + interaction.guild.id
-        if (await tableExists(id)) {
-            if (await tableNotEmpty(id)) {
-                res = await queryAll(id)
-                optionsList = []
-                res.sort((a, b) => (a.name.toUpperCase()[0] > b.name.toUpperCase()[0]) ? 1 : -1)
-                res.forEach(element => {
-                    optionsList.push({ label: element.name, value: element.name })
-                });
-                const row = new ActionRowBuilder()
-                    .addComponents(
-                        new SelectMenuBuilder()
-                            .setCustomId('select')
-                            .setPlaceholder('Nothing selected')
-                            .addOptions(optionsList),);
-                res = { content: 'Select from the dropdown to see the content for each name.', ephemeral: true, components: [row] }
-            }
-            else {
-                res = "The media library has no content."
-            }
-        }
-        else {
-            res = "A media library does not exist.";
-        }
-        await interaction.reply(res);
 
+        if (!(await tableExists(id))) {
+            return await interaction.reply("A media library does not exist.");
+        }
+
+        if (!(await tableNotEmpty(id))) {
+            return await interaction.reply("The media library has no content.")
+        }
+
+        res = await queryAll(id)
+        optionsList = []
+        res.sort((a, b) => (a.name.toUpperCase()[0] > b.name.toUpperCase()[0]) ? 1 : -1)
+        res.forEach(element => {
+            optionsList.push({ label: element.name, value: element.name })
+        });
+        const row = new ActionRowBuilder()
+            .addComponents(
+                new SelectMenuBuilder()
+                    .setCustomId('select')
+                    .setPlaceholder('Nothing selected')
+                    .addOptions(optionsList),);
+        return await interaction.reply({ content: 'Select from the dropdown to see the content for each name.', ephemeral: true, components: [row] })
     }
 };

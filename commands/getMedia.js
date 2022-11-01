@@ -15,18 +15,17 @@ module.exports = {
 			),
 	async execute(interaction) {
 		let id = "id" + interaction.guild.id
-		if (await tableExists(id)) {
-			request = await queryData(id, interaction.options.getString('name'))
-			if (request) {
-				res = request
-			}
-			else {
-				res = "That name does not exist"
-			}
+
+		if (!(await tableExists(id))) {
+			return await interaction.reply("A media library does not exist.");
 		}
-		else {
-			res = "A media library does not exist.";
+		
+		request = await queryData(id, interaction.options.getString('name'))
+
+		if (!(request)) {
+			return await interaction.reply("That name does not exist")
 		}
-		await interaction.reply(res);
+
+		return await interaction.reply(request)
 	},
 };

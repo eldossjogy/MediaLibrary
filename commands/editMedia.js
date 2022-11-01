@@ -8,42 +8,36 @@ module.exports = {
     data:
         new SlashCommandBuilder()
             .setName('editmedia')
-            .setDescription('Edit a media for the library by name')
+            .setDescription('Edit the media link for a media in the library.')
             .addStringOption(option =>
                 option.setName('name')
-                    .setDescription('Set a name for the media your saving.')
+                    .setDescription('Name of media being edited.')
                     .setRequired(true)
                     .setAutocomplete(true))
             .addStringOption(option =>
                 option.setName('newmedia')
-                    .setDescription('Link of the media you save.')
+                    .setDescription('Link of the new media.')
                     .setRequired(true)),
     async execute(interaction) {
         let id = "id" + interaction.guild.id
         let userId = interaction.member.id
-        if (hasManager(interaction.member) || isAuthor(id, interaction.options.getString('name'),userId)) {
-            if (await tableExists(id)) {
-                if (await queryData(id, interaction.options.getString('name'))) {
-                    if (await updateMedia(id, interaction.options.getString('name'), interaction.options.getString('newmedia'))) {
-                        res = `The media saved under ${interaction.options.getString('name')} has been updated.`
-                    }
-                    else {
-                        res = "Something went wrong with the database."
-                    }
-                }
-                else {
-                    res = `There is no media with the name ${interaction.options.getString('name')}.`
-                }
-            }
-            else {
-                res = "A media library does not exist.";
-            }
-        }
-        else {
-            res = { content: "You are not authorized to use this command. Only users with the 'Manage Messages' permission or higher can use this command.", ephemeral: true }
+
+        if (!(hasManager(interaction.member) || isAuthor(id, interaction.options.getString('name'),userId))) {
+            return await interaction.reply( { content: "You are not authorized to use this command. Only users with the 'Manage Messages' permission or higher can use this command.", ephemeral: true })
         }
 
-        await interaction.reply(res);
+        if (!(await tableExists(id))) {
+            return await interaction.reply( "A media library does not exist.")
+        }
 
+        if (!(await queryData(id, interaction.options.getString('name')))) {
+            return await interaction.reply( `There is no media with the name ${interaction.options.getString('name')}.`)
+        }
+ 
+        if (!(await updateMedia(id, interaction.options.getString('name'), interaction.options.getString('newmedia')))) {
+            return await interaction.reply( "Something went wrong with the database.")
+        }
+
+        return await interaction.reply( `The media saved under ${interaction.options.getString('name')} has been updated.`)
     },
 };
