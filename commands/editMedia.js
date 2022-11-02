@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { queryData, updateName } = require("../db/dbCommands");
+const { queryData, updateMedia } = require("../db/dbCommands");
 const { hasManager } = require('../util/hasRole');
 const { isAuthor } = require('../util/isAuthor');
 const { tableExists } = require('../util/tableCheck');
@@ -7,19 +7,19 @@ const { tableExists } = require('../util/tableCheck');
 module.exports = {
     data:
         new SlashCommandBuilder()
-            .setName('renamemedia')
-            .setDescription('Rename a media with a new name')
+            .setName('editmedia')
+            .setDescription('Edit the media link for a media in the library.')
             .addStringOption(option =>
                 option.setName('name')
-                    .setDescription('Current name of media.')
+                    .setDescription('Name of media being edited.')
                     .setRequired(true)
                     .setAutocomplete(true))
             .addStringOption(option =>
-                option.setName('newname')
-                    .setDescription('New name of media.')
+                option.setName('newmedia')
+                    .setDescription('Link of the new media.')
                     .setRequired(true)),
     async execute(interaction) {
-		let id = "id" + interaction.guild.id
+        let id = "id" + interaction.guild.id
         let userId = interaction.member.id
 
         if (!(hasManager(interaction.member) || isAuthor(id, interaction.options.getString('name'),userId))) {
@@ -34,11 +34,10 @@ module.exports = {
             return await interaction.reply( `There is no media with the name ${interaction.options.getString('name')}.`)
         }
  
-        if (!(await updateName(id, interaction.options.getString('name'), interaction.options.getString('newname')))) {
+        if (!(await updateMedia(id, interaction.options.getString('name'), interaction.options.getString('newmedia')))) {
             return await interaction.reply( "Something went wrong with the database.")
         }
- 
-        return await interaction.reply(`The media saved under ${interaction.options.getString('name')} is now under ${interaction.options.getString('newname')}.`)
- 
+
+        return await interaction.reply( `The media saved under ${interaction.options.getString('name')} has been updated.`)
     },
 };

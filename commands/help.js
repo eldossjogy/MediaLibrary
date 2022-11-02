@@ -20,9 +20,10 @@ module.exports = {
                 { name: '**getmedia**', value: 'Gets a media from the media library.' },
                 { name: '**renamelibrary**', value: 'Rename a media in media library.' },
                 { name: '**listmedia**', value: 'List all media in media library.' },
+                { name: '**Support**', value: '[Report a bug or any feedback](https://github.com/eldossjogy/MediaLibrary/issues).' },
             )
             .setFooter({ text: 'MediaLibrary', iconURL: 'https://i.imgur.com/JTtOUTG.png' });
 
-    await interaction.reply({ embeds: [helpEmbed] ,  ephemeral: true });
-}
+        return await interaction.reply({ embeds: [helpEmbed], ephemeral: true });
+    }
 };
