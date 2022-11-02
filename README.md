@@ -37,5 +37,5 @@ npm run-script run
 -   [@eldossjogy](https://github.com/eldossjogy)
 ### Testers
 -   [@ahilashsasidharan](https://github.com/ahilashsasidharan)
--   [@Fareen-Khan](https://github.com/Fareen-Khan)
 -   [@a-knaw-knee-mus](https://github.com/a-knaw-knee-mus)
+-   [@Fareen-Khan](https://github.com/Fareen-Khan)

@@ -1,5 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
-const { insertData, queryData } = require("../db/dbCommands");
+const { insertData } = require("../db/dbCommands");
+const { hasMedia } = require('../util/hasMedia');
 const { tableExists } = require('../util/tableCheck');
 
 module.exports = {
@@ -23,7 +24,7 @@ module.exports = {
             return await interaction.reply( "A media library does not exist.")
         }
 
-        if (await queryData(id, interaction.options.getString('name'))) {
+        if (await hasMedia(id, interaction.options.getString('name'))) {
             return await interaction.reply( `There is already a media with the name ${interaction.options.getString('name')}.`)
         }
 

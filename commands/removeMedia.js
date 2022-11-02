@@ -27,7 +27,7 @@ module.exports = {
             return await interaction.reply( "A media library does not exist.")
         }
 
-        if (!(await queryData(id, interaction.options.getString('name')))) {
+        if (!(await hasMedia(id, interaction.options.getString('name')))) {
             return await interaction.reply( `There is no media with the name ${interaction.options.getString('name')}.`)
         }
  
