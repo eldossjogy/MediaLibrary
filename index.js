@@ -51,54 +51,56 @@ client.on(Events.InteractionCreate, async interaction => {
 // Handle Select Menu Changes
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isSelectMenu()) return;
-	if (interaction.customId === 'select') {
-		res = await queryData("id" + interaction.guildId, interaction.values[0])
-		const row = new ActionRowBuilder()
-			.addComponents(
-				new ButtonBuilder()
-					.setCustomId('primary')
-					.setLabel('Send Media')
-					.setStyle(ButtonStyle.Primary),
-			);
-		if (interaction.message.components.length == 1) {
-			await interaction.update({ content: `**${interaction.values[0]}:** \n ${res}`, components: [interaction.message.components[0], row] });
-		}
-		else {
-			await interaction.update({ content: `**${interaction.values[0]}:** \n ${res}` })
-		}
+	if (interaction.customId !== 'select') return;
+	
+	res = await queryData("id" + interaction.guildId, interaction.values[0])
+	const row = new ActionRowBuilder()
+		.addComponents(
+			new ButtonBuilder()
+				.setCustomId('primary')
+				.setLabel('Send Media')
+				.setStyle(ButtonStyle.Primary),
+		);
+	if (interaction.message.components.length == 1) {
+		await interaction.update({ content: `**${interaction.values[0]}:** \n ${res}`, components: [interaction.message.components[0], row] });
+	}
+	else {
+		await interaction.update({ content: `**${interaction.values[0]}:** \n ${res}` })
 	}
 });
 
 // Handle Button Press
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isButton()) return;
+	
 	selected = interaction.message.content.split('\n')[0].trim().slice(0, -3) + "**";
 	media = interaction.message.content.split('\n')[1].trim()
-	if (media) {
-		username = "<@" + interaction.user.id + ">"
-		await interaction.update({ content: "Media sent", components: [], ephemeral: true })
-		setTimeout(async () => { await interaction.followUp({ content: `${selected} sent by ${username} \n${media}`, ephemeral: false, allowedMentions: {repliedUser: false} }) }, 0)
-	}
+	if (!media) return;
+	
+	username = "<@" + interaction.user.id + ">"
+	await interaction.update({ content: "Media sent", components: [], ephemeral: true })
+	setTimeout(async () => { await interaction.followUp({ content: `${selected} sent by ${username} \n${media}`, ephemeral: false, allowedMentions: {repliedUser: false} }) }, 0)
 });
 
 // Handle AutoComplete on commands
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isAutocomplete()) return;
+	
 	lstCommands = ['getmedia','removemedia','renamemedia','editmedia']
-	if (lstCommands.includes(interaction.commandName)) {
-		const focusedOption = interaction.options.getFocused(true);
-		let choices = [];
-		if (focusedOption.name === 'name') {
-			res = await queryKeys("id" + interaction.guildId)
-			if (res){
-				res.forEach(ele => {choices.push(ele['name'])});
-			}
+	if (!lstCommands.includes(interaction.commandName)) return;
+	
+	const focusedOption = interaction.options.getFocused(true);
+	let choices = [];
+	if (focusedOption.name === 'name') {
+		res = await queryKeys("id" + interaction.guildId)
+		if (res){
+			res.forEach(ele => {choices.push(ele['name'])});
 		}
-		const filtered = choices.sort((a, b) => (a.toUpperCase()[0] > b.toUpperCase()[0]) ? 1 : -1)
-		await interaction.respond(
-			filtered.map(choice => ({ name: choice, value: choice })),
-		);
 	}
+	const filtered = choices.sort((a, b) => (a.toUpperCase()[0] > b.toUpperCase()[0]) ? 1 : -1)
+	await interaction.respond(
+		filtered.map(choice => ({ name: choice, value: choice })),
+	);
 });
 
 client.login(process.env.token);
