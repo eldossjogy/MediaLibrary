@@ -70,6 +70,17 @@ async function queryKeys(serverID) {
     }
 }
 
+async function queryKeysFilter(serverID,filter) {
+    try {
+        const res = await pool.query(
+            `SELECT name FROM ${serverID} WHERE name ILIKE '%${filter}%'`
+        );
+        return res.rows
+    } catch (error) {
+        return false
+    }
+}
+
 async function createTable(serverID) {
     try {
         await pool.query(
@@ -133,4 +144,4 @@ async function updateMedia(serverID, name, newMedia) {
     }
 }
 
-module.exports = { insertData, deleteData, queryAll, queryKeys, queryData, createTable, deleteTable, clearTable, updateName ,updateMedia, queryAuthor};
+module.exports = { insertData, deleteData, queryAll, queryKeys, queryKeysFilter, queryData, createTable, deleteTable, clearTable, updateName ,updateMedia, queryAuthor};

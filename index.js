@@ -2,7 +2,7 @@ require('dotenv').config();
 const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Events, GatewayIntentBits, Collection, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { queryData,queryKeys } = require("./db/dbCommands");
+const { queryData,queryKeys, queryKeysFilter } = require("./db/dbCommands");
 
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -72,7 +72,7 @@ client.on(Events.InteractionCreate, async interaction => {
 // Handle Button Press
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isButton()) return;
-	
+
 	selected = interaction.message.content.split('\n')[0].trim().slice(0, -3) + "**";
 	media = interaction.message.content.split('\n')[1].trim()
 	if (!media) return;
@@ -85,22 +85,21 @@ client.on(Events.InteractionCreate, async interaction => {
 // Handle AutoComplete on commands
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isAutocomplete()) return;
-	
-	lstCommands = ['getmedia','removemedia','renamemedia','editmedia']
-	if (!lstCommands.includes(interaction.commandName)) return;
-	
+
 	const focusedOption = interaction.options.getFocused(true);
 	let choices = [];
-	if (focusedOption.name === 'name') {
-		res = await queryKeys("id" + interaction.guildId)
-		if (res){
-			res.forEach(ele => {choices.push(ele['name'])});
-		}
+
+	if (!focusedOption.name === 'name')  return
+
+	filter = interaction.options._hoistedOptions[0].value
+	if (filter){
+		await queryKeysFilter("id" + interaction.guildId,filter).then(res => res ? res.forEach(ele => {choices.push(ele['name'])}) : null)
+	}
+	else{
+		await queryKeys("id" + interaction.guildId).then(res => res ? res.forEach(ele => {choices.push(ele['name'])}) : null)
 	}
 	const filtered = choices.sort((a, b) => (a.toUpperCase()[0] > b.toUpperCase()[0]) ? 1 : -1)
-	await interaction.respond(
-		filtered.map(choice => ({ name: choice, value: choice })),
-	);
+	await interaction.respond(filtered.map(choice => ({ name: choice, value: choice })));
 });
 
 client.login(process.env.token);
