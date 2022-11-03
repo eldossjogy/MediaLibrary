@@ -33,9 +33,10 @@ Run bot:
 npm run-script run
 ```
 ##  Contributors
-### Creator
 -   [@eldossjogy](https://github.com/eldossjogy)
+-   [@a-knaw-knee-mus](https://github.com/a-knaw-knee-mus)
+
 ### Testers
 -   [@ahilashsasidharan](https://github.com/ahilashsasidharan)
--   [@a-knaw-knee-mus](https://github.com/a-knaw-knee-mus)
 -   [@Fareen-Khan](https://github.com/Fareen-Khan)
+-   [@ryanch117](https://github.com/ryanch117)
