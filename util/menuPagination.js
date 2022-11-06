@@ -57,7 +57,7 @@ async function buttonPages(interaction, pages, time = 60000) {
         if (i.customId === "send") {
             return
         }
-        
+
         await i.deferUpdate()
 
         if (i.customId === "prev") {
@@ -75,6 +75,7 @@ async function buttonPages(interaction, pages, time = 60000) {
         else next.setDisabled(false);
         if (i.customId === "next" || i.customId === "prev") {
             await interaction.editReply({
+                content: "Select from the dropdown to see the content for each name on Page " + (index + 1)+ ".",
                 components: [pages[index], buttonRows],
                 ephemeral: true,
             });
