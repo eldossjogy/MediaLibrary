@@ -1,6 +1,7 @@
-const { SlashCommandBuilder, ActionRowBuilder, SelectMenuBuilder } = require('discord.js');
+const { SlashCommandBuilder, SelectMenuBuilder, ActionRowBuilder } = require("discord.js");
 const { queryAll } = require("../db/dbCommands");
-const { tableExists, tableNotEmpty } = require('../util/tableCheck');
+const buttonPages = require("../util/menuPagination");
+const { tableExists, tableNotEmpty } = require("../util/tableCheck");
 
 module.exports = {
     data:
@@ -25,12 +26,24 @@ module.exports = {
         res.forEach(element => {
             optionsList.push({ label: element.name, value: element.name })
         });
-        const row = new ActionRowBuilder()
-            .addComponents(
-                new SelectMenuBuilder()
-                    .setCustomId('select')
-                    .setPlaceholder('Nothing selected')
-                    .addOptions(optionsList),);
-        return await interaction.reply({ content: 'Select from the dropdown to see the content for each name.', ephemeral: true, components: [row] })
-    }
+        selectRows = []
+        if (optionsList.length > 25) {
+            let numList = (Math.ceil(optionsList.length / 25))
+            for (let i = 0; i < numList; i++) {
+                optList = optionsList.slice(i * 25, 25 + (25 * i))
+                const currentSelect = new ActionRowBuilder()
+                    .addComponents(
+                        new SelectMenuBuilder()
+                            .setCustomId('select')
+                            .setPlaceholder('Nothing selected on Page ' + (i + 1).toString())
+                            .addOptions(optList),
+                    );
+                selectRows.push(currentSelect)
+            }
+        }
+
+        const pages = selectRows;
+        buttonPages(interaction, pages)
+    },
+
 };
