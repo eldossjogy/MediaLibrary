@@ -41,7 +41,7 @@ async function buttonPages(interaction, pages, time = 60000) {
     let index = 0;
 
     const currentPage = await interaction.editReply({
-        content: "PGE!",
+        content: "Select from the dropdown to see the content for each name.",
         components: [pages[index], buttonRows],
         ephemeral: true,
         fetchReply: true,
@@ -75,7 +75,6 @@ async function buttonPages(interaction, pages, time = 60000) {
         else next.setDisabled(false);
         if (i.customId === "next" || i.customId === "prev") {
             await interaction.editReply({
-                content: "TeT",
                 components: [pages[index], buttonRows],
                 ephemeral: true,
             });
