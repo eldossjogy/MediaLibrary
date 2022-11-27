@@ -11,16 +11,15 @@ async function insertData(serverID, name, link, userID) {
                 server_id: serverID,
             },
         })
-        return true
+        return { status: true }
     } catch (e) {
         if (e.code === 'P2002') {
-            console.log(
-                'This name or media is in the TABLE', name
-            )
+            return { status: false, message: "There is already a link with this media" }
+        }
+        if (e.code == "P2000") {
+            return { status: false, message: "The media link is too large" }
         }
         else {
-            console.log(name)
-            console.log(link)
             console.log(e)
         }
     }
@@ -133,7 +132,7 @@ async function updateName(serverID, name, newName) {
         console.log(e)
     }
     return false
-    
+
 }
 async function updateMedia(serverID, name, newMedia) {
     try {
@@ -149,7 +148,7 @@ async function updateMedia(serverID, name, newMedia) {
             },
         })
         return true
-        
+
     } catch (e) {
         console.log(e)
     }

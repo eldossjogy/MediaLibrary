@@ -5,15 +5,20 @@ const { Client, Events, GatewayIntentBits, Collection, ActionRowBuilder, ButtonB
 const { queryData, queryKeys, queryKeysFilter } = require("./db/dbCommands");
 const { isSimilar } = require('./util/searchQuery');
 const express = require('express');
+const { isAttachable } = require('./util/isAttachable');
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.listen(port, '0.0.0.0', () => {
 	console.log(`Server Started at Port ${port}`)
- });
+});
 
-app.get('/', (request,response) => {
+app.get('/', (request, response) => {
 	return response.sendFile('index.html', { root: '.' });
+});
+app.get('/health', (request, response) => {
+	response.status(200);
+	return response.send("active");
 });
 
 app.listen(() => console.log(`App listening at http://localhost:${port}`));
@@ -68,37 +73,63 @@ client.on(Events.InteractionCreate, async interaction => {
 	if (interaction.customId !== 'select') return;
 
 	res = await queryData(interaction.guildId, interaction.values[0])
-	prevButtonRow = interaction.message.components[1].components
-	if (prevButtonRow.length == 2) {
+	interactionComponents = interaction.message.components
+	if (interactionComponents.length > 1) {
+		// add to row with next and prev
+		prevButtonRow = interaction.message.components[1].components
+		if (prevButtonRow.length == 2) {
+			const send = new ButtonBuilder()
+				.setCustomId('send')
+				.setLabel("Send")
+				.setStyle(ButtonStyle.Success)
+			const newRows = new ActionRowBuilder()
+			prevButtonRow.forEach(element => {
+				newRows.addComponents(element)
+			});
+			newRows.addComponents(send)
+			return await interaction.update({ content: `**${interaction.values[0]}:** \n ${res}`, components: [interaction.message.components[0], newRows] })
+		}
+	}
+	else {
+		prevButtonRow = interaction.message.components[0]
 		const send = new ButtonBuilder()
 			.setCustomId('send')
 			.setLabel("Send")
 			.setStyle(ButtonStyle.Success)
-		const newRows = new ActionRowBuilder()
-		prevButtonRow.forEach(element => {
-			newRows.addComponents(element)
-		});
-		newRows.addComponents(send)
-		await interaction.update({ content: `**${interaction.values[0]}:** \n ${res}`, components: [interaction.message.components[0], newRows] })
+		const buttonRows = new ActionRowBuilder().addComponents(send)
+		return await interaction.update({ content: `**${interaction.values[0]}:** \n ${res}`, components: [interaction.message.components[0], buttonRows] })
 	}
-	else {
-		await interaction.update({ content: `**${interaction.values[0]}:** \n ${res}` })
-	}
+
+	await interaction.update({ content: `**${interaction.values[0]}:** \n ${res}` })
 
 });
 
 // Handle Send Button Press
 client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isButton()) return;
-	if(!(interaction.customId == 'send'))  return;
-	
+	if (!(interaction.customId == 'send')) return;
+
 	selected = interaction.message.content.split('\n')[0].trim().slice(0, -3) + "**";
 	media = interaction.message.content.split('\n')[1].trim()
 	if (!media) return;
 
 	username = "<@" + interaction.user.id + ">"
 	await interaction.update({ content: "Media sent", components: [], ephemeral: true })
-	setTimeout(async () => { await interaction.followUp({ content: `${selected} sent by ${username} \n${media}`, ephemeral: false, allowedMentions: { repliedUser: false } }) }, 0)
+
+	let res = await isAttachable(media)
+	if (res[0]) {
+		setTimeout(async () => {
+			await interaction.followUp({
+				content: `${selected} sent by ${username}`, ephemeral: false, allowedMentions: { repliedUser: false }, files: [{
+					attachment: media,
+					name: 'media' + res[1]
+				}]
+			})
+		}, 0)
+	}
+	else {
+		setTimeout(async () => { await interaction.followUp({ content: `${selected} sent by ${username} \n${media}`, ephemeral: false, allowedMentions: { repliedUser: false } }) }, 0)
+	}
 });
 
 
@@ -114,7 +145,7 @@ client.on(Events.InteractionCreate, async interaction => {
 	filter = interaction.options._hoistedOptions[0].value
 	if (filter) {
 		await queryKeysFilter(id, filter).then(res => res ? res.forEach(ele => { choices.push(ele.name) }) : null)
-		choices = await isSimilar(id,filter,choices)
+		choices = await isSimilar(id, filter, choices)
 	}
 	else {
 		await queryKeys(id).then(res => res ? res.forEach(ele => { choices.push(ele['name']) }) : null)

@@ -18,7 +18,10 @@ module.exports = {
             optionsList.push({ label: element.name, value: element.name })
         });
         selectRows = []
-        count = optionsList.length 
+        count = optionsList.length
+        if (count == 0) {
+            return await interaction.reply({ content: `There is no media saved on the server. Use /setmedia to set a media`, ephemeral: true })
+        }
         if (count > 25) {
             let numList = (Math.ceil(optionsList.length / 25))
             for (let i = 0; i < numList; i++) {
@@ -42,8 +45,8 @@ module.exports = {
                         .setCustomId('select')
                         .setPlaceholder('Nothing selected on page')
                         .addOptions(optionsList),
-                ); 
-            await interaction.reply({ content: `Select from the dropdown to see the media for each ${count} name.`, ephemeral: true, components: [row] })
+                );
+            return await interaction.reply({ content: `Select from the dropdown to see the media for each ${count} name.`, ephemeral: true, components: [row] })
         }
 
     },
