@@ -1,7 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { insertData } = require("../db/dbCommands");
 const { hasMedia } = require('../util/hasMedia');
-const { tableExists } = require('../util/tableCheck');
 
 module.exports = {
     data:
@@ -17,12 +16,8 @@ module.exports = {
                     .setDescription('Link of the media.')
                     .setRequired(true)),
     async execute(interaction) {
-        let id = "id" + interaction.guild.id
+        let id = interaction.guild.id.toString()
         let userId = interaction.member.id
-
-        if (!(await tableExists(id))) {
-            return await interaction.reply( "A media library does not exist.")
-        }
 
         if (await hasMedia(id, interaction.options.getString('name'))) {
             return await interaction.reply( `There is already a media with the name ${interaction.options.getString('name')}.`)

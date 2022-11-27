@@ -3,7 +3,20 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Events, GatewayIntentBits, Collection, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { queryData, queryKeys, queryKeysFilter } = require("./db/dbCommands");
- 
+const { isSimilar } = require('./util/searchQuery');
+const express = require('express');
+const app = express();
+const port = process.env.PORT || 3000;
+
+app.listen(port, '0.0.0.0', () => {
+	console.log(`Server Started at Port ${port}`)
+ });
+
+app.get('/', (request,response) => {
+	return response.sendFile('index.html', { root: '.' });
+});
+
+app.listen(() => console.log(`App listening at http://localhost:${port}`));
 
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -54,7 +67,7 @@ client.on(Events.InteractionCreate, async interaction => {
 	if (!interaction.isSelectMenu()) return;
 	if (interaction.customId !== 'select') return;
 
-	res = await queryData("id" + interaction.guildId, interaction.values[0])
+	res = await queryData(interaction.guildId, interaction.values[0])
 	prevButtonRow = interaction.message.components[1].components
 	if (prevButtonRow.length == 2) {
 		const send = new ButtonBuilder()
@@ -97,13 +110,14 @@ client.on(Events.InteractionCreate, async interaction => {
 	let choices = [];
 
 	if (!focusedOption.name === 'name') return
-
+	let id = interaction.guild.id.toString()
 	filter = interaction.options._hoistedOptions[0].value
 	if (filter) {
-		await queryKeysFilter("id" + interaction.guildId, filter).then(res => res ? res.forEach(ele => { choices.push(ele['name']) }) : null)
+		await queryKeysFilter(id, filter).then(res => res ? res.forEach(ele => { choices.push(ele.name) }) : null)
+		choices = await isSimilar(id,filter,choices)
 	}
 	else {
-		await queryKeys("id" + interaction.guildId).then(res => res ? res.forEach(ele => { choices.push(ele['name']) }) : null)
+		await queryKeys(id).then(res => res ? res.forEach(ele => { choices.push(ele['name']) }) : null)
 	}
 	const filtered = choices.sort((a, b) => (a.toUpperCase()[0] > b.toUpperCase()[0]) ? 1 : -1).splice(0, 25)
 	await interaction.respond(filtered.map(choice => ({ name: choice, value: choice })));

@@ -1,7 +1,6 @@
 const { SlashCommandBuilder, SelectMenuBuilder, ActionRowBuilder } = require("discord.js");
 const { queryAll } = require("../db/dbCommands");
 const buttonPages = require("../util/menuPagination");
-const { tableExists, tableNotEmpty } = require("../util/tableCheck");
 
 module.exports = {
     data:
@@ -10,15 +9,7 @@ module.exports = {
             .setDescription('List all saved media by name'),
 
     async execute(interaction) {
-        let id = "id" + interaction.guild.id
-
-        if (!(await tableExists(id))) {
-            return await interaction.reply("A media library does not exist.");
-        }
-
-        if (!(await tableNotEmpty(id))) {
-            return await interaction.reply("The media library has no content.")
-        }
+        let id = interaction.guild.id.toString()
 
         res = await queryAll(id)
         optionsList = []
@@ -27,7 +18,8 @@ module.exports = {
             optionsList.push({ label: element.name, value: element.name })
         });
         selectRows = []
-        if (optionsList.length > 25) {
+        count = optionsList.length 
+        if (count > 25) {
             let numList = (Math.ceil(optionsList.length / 25))
             for (let i = 0; i < numList; i++) {
                 optList = optionsList.slice(i * 25, 25 + (25 * i))
@@ -40,10 +32,20 @@ module.exports = {
                     );
                 selectRows.push(currentSelect)
             }
+            const pages = selectRows;
+            buttonPages(interaction, pages, count)
+        }
+        else {
+            const row = new ActionRowBuilder()
+                .addComponents(
+                    new SelectMenuBuilder()
+                        .setCustomId('select')
+                        .setPlaceholder('Nothing selected on page')
+                        .addOptions(optionsList),
+                ); 
+            await interaction.reply({ content: `Select from the dropdown to see the media for each ${count} name.`, ephemeral: true, components: [row] })
         }
 
-        const pages = selectRows;
-        buttonPages(interaction, pages)
     },
 
 };
