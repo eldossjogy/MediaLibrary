@@ -1,6 +1,6 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { queryData } = require("../db/dbCommands");
-const { tableExists } = require('../util/tableCheck');
+const { isAttachable } = require('../util/isAttachable');
 
 module.exports = {
 	data:
@@ -14,18 +14,24 @@ module.exports = {
 					.setAutocomplete(true)
 			),
 	async execute(interaction) {
-		let id = "id" + interaction.guild.id
+		let id = interaction.guild.id.toString()
 
-		if (!(await tableExists(id))) {
-			return await interaction.reply("A media library does not exist.");
-		}
-		
 		request = await queryData(id, interaction.options.getString('name'))
 
 		if (!(request)) {
 			return await interaction.reply("That name does not exist")
 		}
 
+		let res = await isAttachable(request)
+		if (res[0]) {
+			await interaction.deferReply()
+			return await interaction.followUp({
+				files: [{
+					attachment: request,
+					name: 'media' + res[1]
+				}],
+			})
+		}
 		return await interaction.reply(request)
 	},
 };

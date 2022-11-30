@@ -1,147 +1,172 @@
-const { pool } = require("./db");
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient()
 
 async function insertData(serverID, name, link, userID) {
     try {
-        await pool.query(
-            `INSERT INTO ${serverID} (name, link,author_id) VALUES ($1, $2, $3)`,
-            [name, link,userID]
-        );
-        return true
-    } catch (error) {
-        return false
+        await prisma.MediaTable.create({
+            data: {
+                name: name,
+                link: link,
+                author_id: userID,
+                server_id: serverID,
+            },
+        })
+        return { status: true }
+    } catch (e) {
+        if (e.code === 'P2002') {
+            return { status: false, message: "There is already a link with this media" }
+        }
+        if (e.code == "P2000") {
+            return { status: false, message: "The media link is too large" }
+        }
+        else {
+            console.log(e)
+        }
     }
+    return false
 }
 
 async function deleteData(serverID, name) {
-    try {
-        await pool.query(
-            `DELETE FROM ${serverID} WHERE name = $1;`,
-            [name]
-        );
+    const deleteUser = await prisma.MediaTable.deleteMany({
+        where: {
+            server_id: {
+                contains: serverID,
+            },
+            name: {
+                contains: name,
+            },
+        },
+    })
+    if (deleteUser.count == 1) {
         return true
-    } catch (error) {
-        return false
     }
+    return false
 }
 
 async function queryData(serverID, name) {
     try {
-        const res = await pool.query(
-            `SELECT link FROM ${serverID} WHERE name = $1`,
-            [name]
-        );
-        return res.rows[0].link
-    } catch (error) {
+        const user = await prisma.MediaTable.findUnique({
+            where: {
+                UniqueNameIdentifier: {
+                    server_id: serverID,
+                    name: name
+                }
+            },
+        })
+        if (user != null) {
+            return user.link
+        }
         return false
+    } catch (e) {
+        if (e.code == 'P2022') {
+            console.log("nothing in server")
+            return false
+        }
+        else {
+            console.log(e)
+        }
     }
+    return false
+
 }
 
-async function queryAuthor(serverID, name) {
-    try {
-        const res = await pool.query(
-            `SELECT author_id FROM ${serverID} WHERE name = $1`,
-            [name]
-        );
-        return res.rows[0].author_id
-    } catch (error) {
-        return false
-    }
-}
 
 async function queryAll(serverID) {
     try {
-        const res = await pool.query(
-            `SELECT * FROM ${serverID}`
-        );
-        return res.rows
-    } catch (error) {
-        return false
+        const user = await prisma.MediaTable.findMany({
+            where: {
+                server_id: serverID,
+            },
+        })
+        return user
+    } catch (e) {
+        if (e.code == 'P2022') {
+            console.log("nothing in server")
+        }
     }
 }
 
 async function queryKeys(serverID) {
-    try {
-        const res = await pool.query(
-            `SELECT name FROM ${serverID}`
-        );
-        return res.rows
-    } catch (error) {
-        return false
-    }
+    const res = await prisma.MediaTable.findMany({
+        where: {
+            server_id: serverID,
+        },
+        select: {
+            name: true,
+        }
+    })
+    return res
 }
 
-async function queryKeysFilter(serverID,filter) {
-    try {
-        const res = await pool.query(
-            `SELECT name FROM ${serverID} WHERE name ILIKE '%${filter}%'`
-        );
-        return res.rows
-    } catch (error) {
-        return false
+async function queryKeysFilter(serverID, filter) {
+    const user = await prisma.$queryRaw`SELECT * FROM MediaTable WHERE server_id=${serverID} AND ( SOUNDEX(${filter}) = SOUNDEX(name) OR name LIKE ${'%' + filter + '%'})`
+    if (user.length != 0) {
+        return user
     }
-}
-
-async function createTable(serverID) {
-    try {
-        await pool.query(
-            `CREATE TABLE IF NOT EXISTS ${serverID} ( id serial PRIMARY KEY, name TEXT UNIQUE NOT NULL, link TEXT UNIQUE NOT NULL, author_id TEXT NOT NULL)`
-        );
-        return true
-    } catch (error) {
-        return false
-    }
-}
-
-async function deleteTable(serverID) {
-    try {
-        await pool.query(
-            `DROP TABLE ${serverID}`
-        );
-        return true
-    } catch (error) {
-        return false
-    }
+    return false
 }
 
 async function clearTable(serverID) {
-    try {
-        await pool.query(
-            `TRUNCATE TABLE ${serverID}`
-        );
-        return true
-    } catch (error) {
-        return false
-    }
+    const user = await prisma.MediaTable.deleteMany({
+        where: {
+            server_id: serverID
+        },
+    })
 }
 
 async function updateName(serverID, name, newName) {
     try {
-        await pool.query(
-            `UPDATE ${serverID}
-            SET name = $1
-            WHERE name = $2;`,
-            [newName,name]
-        );
+        const res = await prisma.MediaTable.update({
+            where: {
+                UniqueNameIdentifier: {
+                    server_id: serverID,
+                    name: name,
+                }
+            },
+            data: {
+                name: newName,
+            },
+        })
         return true
-    } catch (error) {
-
-        return false
+    } catch (e) {
+        console.log(e)
     }
-}
+    return false
 
+}
 async function updateMedia(serverID, name, newMedia) {
     try {
-        await pool.query(
-            `UPDATE ${serverID}
-            SET link = $1
-            WHERE name = $2;`,
-            [newMedia,name]
-        );
+        const res = await prisma.MediaTable.update({
+            where: {
+                UniqueNameIdentifier: {
+                    server_id: serverID,
+                    name: name,
+                }
+            },
+            data: {
+                link: newMedia,
+            },
+        })
         return true
-    } catch (error) {
 
-        return false
+    } catch (e) {
+        console.log(e)
     }
+    return false
 }
 
-module.exports = { insertData, deleteData, queryAll, queryKeys, queryKeysFilter, queryData, createTable, deleteTable, clearTable, updateName ,updateMedia, queryAuthor};
+async function queryAuthor(serverID, name) {
+    const res = await prisma.MediaTable.findUnique({
+        where: {
+            UniqueNameIdentifier: {
+                server_id: serverID,
+                name: name
+            }
+        },
+        select: {
+            author_id: true,
+        }
+    })
+}
+
+module.exports = { insertData, deleteData, queryAll, queryKeys, queryKeysFilter, queryData, updateName, updateMedia, queryAuthor, clearTable };

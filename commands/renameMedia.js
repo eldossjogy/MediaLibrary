@@ -2,7 +2,6 @@ const { SlashCommandBuilder } = require('discord.js');
 const { queryData, updateName } = require("../db/dbCommands");
 const { hasManager } = require('../util/hasRole');
 const { isAuthor } = require('../util/isAuthor');
-const { tableExists } = require('../util/tableCheck');
 
 module.exports = {
     data:
@@ -19,15 +18,11 @@ module.exports = {
                     .setDescription('New name of media.')
                     .setRequired(true)),
     async execute(interaction) {
-		let id = "id" + interaction.guild.id
+		let id = interaction.guild.id.toString()
         let userId = interaction.member.id
 
         if (!(hasManager(interaction.member) || isAuthor(id, interaction.options.getString('name'),userId))) {
             return await interaction.reply( { content: "You are not authorized to use this command. Only users with the 'Manage Messages' permission or higher can use this command.", ephemeral: true })
-        }
-
-        if (!(await tableExists(id))) {
-            return await interaction.reply( "A media library does not exist.")
         }
 
         if (!(await queryData(id, interaction.options.getString('name')))) {

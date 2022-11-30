@@ -3,7 +3,6 @@ const { deleteData } = require('../db/dbCommands');
 const { hasMedia } = require('../util/hasMedia');
 const { hasManager } = require('../util/hasRole');
 const { isAuthor } = require('../util/isAuthor');
-const { tableExists } = require('../util/tableCheck');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -16,15 +15,11 @@ module.exports = {
 				.setAutocomplete(true)
 		),	
 	async execute(interaction) {
-		let id = "id" + interaction.guild.id
+		let id = interaction.guild.id.toString()
         let userId = interaction.member.id
 
         if (!(hasManager(interaction.member) || isAuthor(id, interaction.options.getString('name'),userId))) {
             return await interaction.reply( { content: "You are not authorized to use this command. Only users with the 'Manage Messages' permission or higher can use this command.", ephemeral: true })
-        }
-
-        if (!(await tableExists(id))) {
-            return await interaction.reply( "A media library does not exist.")
         }
 
         if (!(await hasMedia(id, interaction.options.getString('name')))) {
