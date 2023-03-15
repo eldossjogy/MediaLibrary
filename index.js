@@ -69,7 +69,7 @@ client.on(Events.InteractionCreate, async interaction => {
 
 // Handle Select Menu Changes
 client.on(Events.InteractionCreate, async interaction => {
-	if (!interaction.isSelectMenu()) return;
+	if (!interaction.isStringSelectMenu()) return;
 	if (interaction.customId !== 'select') return;
 
 	res = await queryData(interaction.guildId, interaction.values[0])
