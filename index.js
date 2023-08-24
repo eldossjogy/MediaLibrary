@@ -2,7 +2,7 @@ require('dotenv').config();
 const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Events, GatewayIntentBits, Collection, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { queryData, queryKeys, queryKeysFilter } = require("./db/dbCommands");
+const { queryData, queryKeys, queryKeysFilter, dbStatus} = require("./db/dbCommands");
 const { isSimilar } = require('./util/searchQuery');
 const express = require('express');
 const { isAttachable } = require('./util/isAttachable');
@@ -16,9 +16,10 @@ app.listen(port, '0.0.0.0', () => {
 app.get('/', (request, response) => {
 	return response.sendFile('index.html', { root: '.' });
 });
-app.get('/health', (request, response) => {
+app.get('/health', async (request, response) => {
+	let status = await dbStatus();
 	response.status(200);
-	return response.send("active");
+	return response.send({ dbstatus: status, status:"active"});
 });
 
 app.listen(() => console.log(`App listening at http://localhost:${port}`));
