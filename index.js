@@ -9,29 +9,29 @@ const { isAttachable } = require('./util/isAttachable');
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.listen(port, '0.0.0.0', () => {
-	console.log(`Server Started at Port ${port}`)
-});
-
-app.get('/', (request, response) => {
-	return response.sendFile('index.html', { root: '.' });
-});
-app.get('/health', async (request, response) => {
-	let status = await dbStatus();
-	response.status(200);
-	return response.send({ dbstatus: status, status:"active"});
-});
-
-app.listen(() => console.log(`App listening at http://localhost:${port}`));
-
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 
 client.commands = new Collection();
 
 // When the client is ready, run this code (only once)
+// Create the website after the bot is ready
 client.once(Events.ClientReady, c => {
 	console.log(`Ready! Logged in as ${c.user.tag}`);
+	app.listen(port, '0.0.0.0', () => {
+		console.log(`Server Started at Port ${port}`)
+	});
+	
+	app.get('/', (request, response) => {
+		return response.sendFile('index.html', { root: '.' });
+	});
+	app.get('/health', async (request, response) => {
+		let status = await dbStatus();
+		response.status(200);
+		return response.send({ dbstatus: status, status:"active"});
+	});
+	
+	app.listen(() => console.log(`App listening at http://localhost:${port}`));
 });
 
 // Add all commands to client
