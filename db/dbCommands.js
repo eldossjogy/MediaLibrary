@@ -71,8 +71,12 @@ async function queryData(serverID, name) {
 }
 async function dbStatus() {
   try {
-    await prisma.$queryRaw`SELECT 1`;
-    return true;
+    const count = await prisma.MediaTable.aggregate({
+      _count: {
+        id: true,
+      },
+    });
+    return count;
   } catch (error) {
     console.error("Error checking database status:", error.message);
     return false
@@ -108,9 +112,8 @@ async function queryKeys(serverID) {
 
 async function queryKeysFilter(serverID, filter) {
   const user =
-    await prisma.$queryRaw`SELECT * FROM MediaTable WHERE server_id=${serverID} AND ( SOUNDEX(${filter}) = SOUNDEX(name) OR name LIKE ${
-      "%" + filter + "%"
-    })`;
+    await prisma.$queryRaw`SELECT * FROM MediaTable WHERE server_id=${serverID} AND ( SOUNDEX(${filter}) = SOUNDEX(name) OR name LIKE ${"%" + filter + "%"
+      })`;
   if (user.length != 0) {
     return user;
   }
@@ -118,11 +121,12 @@ async function queryKeysFilter(serverID, filter) {
 }
 
 async function clearTable(serverID) {
-  const user = await prisma.MediaTable.deleteMany({
+  const count = await prisma.MediaTable.deleteMany({
     where: {
       server_id: serverID,
     },
   });
+  return count
 }
 
 async function updateName(serverID, name, newName) {
