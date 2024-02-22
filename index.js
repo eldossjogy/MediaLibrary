@@ -2,26 +2,12 @@ require('dotenv').config();
 const fs = require('node:fs');
 const path = require('node:path');
 const { Client, Events, GatewayIntentBits, Collection, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { queryData, queryKeys, queryKeysFilter } = require("./db/dbCommands");
+const { queryData, queryKeys, queryKeysFilter, dbStatus, clearTable } = require("./db/dbCommands");
 const { isSimilar } = require('./util/searchQuery');
 const express = require('express');
 const { isAttachable } = require('./util/isAttachable');
 const app = express();
 const port = process.env.PORT || 3000;
-
-app.listen(port, '0.0.0.0', () => {
-	console.log(`Server Started at Port ${port}`)
-});
-
-app.get('/', (request, response) => {
-	return response.sendFile('index.html', { root: '.' });
-});
-app.get('/health', (request, response) => {
-	response.status(200);
-	return response.send("active");
-});
-
-app.listen(() => console.log(`App listening at http://localhost:${port}`));
 
 // Create a new client instance
 const client = new Client({ intents: [GatewayIntentBits.Guilds] });
@@ -29,8 +15,23 @@ const client = new Client({ intents: [GatewayIntentBits.Guilds] });
 client.commands = new Collection();
 
 // When the client is ready, run this code (only once)
+// Create the website after the bot is ready
 client.once(Events.ClientReady, c => {
 	console.log(`Ready! Logged in as ${c.user.tag}`);
+	app.listen(port, '0.0.0.0', () => {
+		console.log(`Server Started at Port ${port}`)
+	});
+
+	app.get('/', (request, response) => {
+
+		return response.sendFile('index.html', { root: '.' });
+	});
+	app.get('/health', async (request, response) => {
+		let uptime = process.uptime();
+		let status = await dbStatus();
+		response.status(200);
+		return response.send({ dbstatus: status, uptime: uptime });
+	});
 });
 
 // Add all commands to client
@@ -132,6 +133,23 @@ client.on(Events.InteractionCreate, async interaction => {
 	}
 });
 
+// Handle CancelWipe Button Press
+client.on(Events.InteractionCreate, async interaction => {
+	if (!interaction.isButton()) return;
+	if (!(interaction.customId == 'cancelWipe')) return;
+	return await interaction.update({ content: "Wipe cancelled", components: [], ephemeral: true })
+});
+
+// Handle ConfirmWipe Button Press
+client.on(Events.InteractionCreate, async interaction => {
+	if (!interaction.isButton()) return;
+	if (!(interaction.customId == 'confirmWipe')) return;
+	let id = interaction.guild.id.toString()
+	if (!(await clearTable(id))) {
+		return await interaction.update({ content: "Something went wrong with the database." , components: []});
+	}
+	return await interaction.update({ content: "This servers media library has been PURGED." , components: []});
+});
 
 // Handle AutoComplete on commands
 client.on(Events.InteractionCreate, async interaction => {

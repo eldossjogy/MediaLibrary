@@ -1,22 +1,30 @@
-const { SlashCommandBuilder } = require('discord.js');
-const { clearTable } = require('../db/dbCommands');
+const { SlashCommandBuilder, ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const { hasAdmin } = require('../util/hasRole');
- 
+
 module.exports = {
 	data: new SlashCommandBuilder()
 		.setName('wipelibrary')
-		.setDescription('Empty the library removing all media'),
+		.setDescription('Empty the library removing all media (Confirmation Required)'),
 	async execute(interaction) {
-		let id = interaction.guild.id.toString()
-
 		if (!(hasAdmin(interaction.member))) {
 			return await interaction.reply({ content: "You are not authorized to use this command. Only users with the 'Ban Members' or server admins can use this command.", ephemeral: true })
 		}
+		const confirm = new ButtonBuilder()
+			.setCustomId('confirmWipe')
+			.setLabel('Confirm wiping library')
+			.setStyle(ButtonStyle.Danger);
 
-		if (!(await clearTable(id))) {
-			return await interaction.reply("Something went wrong with the database.");
-		}
+		const cancel = new ButtonBuilder()
+			.setCustomId('cancelWipe')
+			.setLabel('Cancel')
+			.setStyle(ButtonStyle.Secondary);
 
-		return await interaction.reply("This servers media library has been PURGED.");
+		const row = new ActionRowBuilder()
+			.addComponents(cancel, confirm);
+
+		await interaction.reply({
+			content: `Are you sure you want to wipe this servers media library?`,
+			components: [row],
+		});
 	},
 };
