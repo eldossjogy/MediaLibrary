@@ -6,7 +6,7 @@
 <h3 align="center">MediaLibrary</h3>
  
 ## About 
-A discord bot that allows users to save media links in a media library under keys. Making sending videos or images that are commonly used much faster.
+A discord bot that allows users to save media links in a media library under keys. Making sending videos or images that are commonly used much faster to send.
 
 🔗[Invite Discord Bot](https://discord.com/api/oauth2/authorize?client_id=910350971299848192&permissions=431644735552&scope=bot%20applications.commands)
 
@@ -20,13 +20,12 @@ A discord bot that allows users to save media links in a media library under key
  
 ## Try it yourself!
  Create a file in the root directory with the name `.env` containing the filled information of the `.env.example` file.
- 
+
+### Local Build
 Install packages:
 ```bash
 npm install
 ```
-
-### Build
 
 Setup Database:
 ```bash
@@ -37,6 +36,18 @@ Run bot:
 ```bash
 npm run-script run
 ```
+
+### Docker Build
+Build image:
+```bash
+docker build -t medialibrary .
+```
+Run image:
+```bash
+docker run -p 3000:3000 medialibrary
+```
+
+
 ##  Contributors
 -   [@eldossjogy](https://github.com/eldossjogy)
 -   [@a-knaw-knee-mus](https://github.com/a-knaw-knee-mus)
