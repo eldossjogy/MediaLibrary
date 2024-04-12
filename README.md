@@ -38,15 +38,10 @@ npm run-script run
 ```
 
 ### Docker Build
-Build image:
+Build container:
 ```bash
-docker build -t medialibrary .
+docker-compose up
 ```
-Run image:
-```bash
-docker run -p 3000:3000 medialibrary
-```
-
 
 ##  Contributors
 -   [@eldossjogy](https://github.com/eldossjogy)
