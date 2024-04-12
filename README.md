@@ -14,8 +14,9 @@ A discord bot that allows users to save media links in a media library under key
 
 - [NodeJs](https://nodejs.org/) - JavaScript Engine 
 - [DiscordJs](https://discord.js.org/) - Discord API Wrapper
-- [PlanetScale](https://planetscale.com/) - Database
+- [MySQL](https://www.mysql.com/) - Database
 - [Prisma](https://www.prisma.io/) - Data Modeler
+- [Docker](https://www.docker.com/) - Container
 
  
 ## Try it yourself!
