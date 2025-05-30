@@ -1,4 +1,4 @@
-const { SlashCommandBuilder, SelectMenuBuilder, ActionRowBuilder } = require("discord.js");
+const { SlashCommandBuilder, StringSelectMenuBuilder, ActionRowBuilder } = require("discord.js");
 const { queryAll } = require("../db/dbCommands");
 const buttonPages = require("../util/menuPagination");
 
@@ -28,7 +28,7 @@ module.exports = {
                 optList = optionsList.slice(i * 25, 25 + (25 * i))
                 const currentSelect = new ActionRowBuilder()
                     .addComponents(
-                        new SelectMenuBuilder()
+                        new StringSelectMenuBuilder()
                             .setCustomId('select')
                             .setPlaceholder('Nothing selected on Page ' + (i + 1).toString())
                             .addOptions(optList),
@@ -41,7 +41,7 @@ module.exports = {
         else {
             const row = new ActionRowBuilder()
                 .addComponents(
-                    new SelectMenuBuilder()
+                    new StringSelectMenuBuilder()
                         .setCustomId('select')
                         .setPlaceholder('Nothing selected on page')
                         .addOptions(optionsList),

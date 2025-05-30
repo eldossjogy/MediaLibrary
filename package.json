@@ -4,14 +4,13 @@
     "difflib": "^0.2.4",
     "discord.js": "^14.14.1",
     "dotenv": "^16.4.5",
-    "express": "^4.18.2",
-    "pg": "^8.11.3"
+    "express": "^4.18.2"
   },
   "name": "discord-bot",
-  "version": "1.0.4",
+  "version": "1.1.0",
   "main": "deploy-commands.js & index.js",
   "scripts": {
-    "run": "node deploy-commands.js && node index.js"
+    "run": "npx prisma db push && node deploy-commands.js && node index.js"
   },
   "engines": {
     "node": ">19.8.0"

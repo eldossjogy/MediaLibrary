@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  mysql:
+    container_name: mysql
+    image: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "root"
+      MYSQL_DATABASE: "medialibrary"
+    ports:
+      - 3306:3306
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  app:
+    container_name: medialibrary
+    build: 
+      context: .
+      dockerfile: dockerfile
+    restart: always
+    ports:
+      - 3000:3000
+    depends_on:
+      - mysql
+
+volumes:
+  mysql_data:
